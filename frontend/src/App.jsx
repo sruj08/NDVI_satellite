@@ -5,6 +5,7 @@ import LayerToggle from './LayerToggle';
 import Legend from './Legend';
 import LoadingOverlay from './LoadingOverlay';
 import TimelineBar from './TimelineBar';
+import NavbarDropdown from './NavbarDropdown';
 import { analyzeFarm, fetchAvailableDates, fetchDayAnalysis } from './api';
 import * as turf from '@turf/turf';
 import './index.css';
@@ -229,28 +230,21 @@ export default function App() {
                     style={{width: '140px'}}
                 />
             ) : (
-                <div className="navbar__dropdown field-selector-dropdown">
-                  <select 
-                    className="navbar__select" 
-                    value={activeFieldId || "empty"} 
-                    onChange={(e) => {
-                        if (e.target.value === "add_new") {
+                <NavbarDropdown 
+                    value={activeFieldId || "empty"}
+                    onChange={(val) => {
+                        if (val === "add_new") {
                             setActiveFieldId(null);
                         } else {
-                            setActiveFieldId(e.target.value);
+                            setActiveFieldId(val);
                         }
                     }}
-                  >
-                      {fields.length === 0 && <option value="empty" disabled>Draw to add Field</option>}
-                  {fields.map(f => (
-                          <option key={f.id} value={f.id}>
-                              {f.name}
-                          </option>
-                      ))}
-                      {fields.length > 0 && <option value="add_new">+ Add New Field</option>}
-                  </select>
-                  <div className="navbar__select-arrow">▼</div>
-                </div>
+                    options={[
+                        ...(fields.length === 0 ? [{ value: "empty", label: "Draw to add Field", disabled: true }] : []),
+                        ...fields.map(f => ({ value: f.id, label: f.name })),
+                        ...(fields.length > 0 ? [{ value: "add_new", label: "+ Add New Field" }] : [])
+                    ]}
+                />
             )}
             
             {activeFieldId && editingFieldId !== activeFieldId && (
@@ -268,30 +262,26 @@ export default function App() {
 
           {/* Satellite / Index Dropdowns */}
           <div className="navbar__selectors">
-            <div className="navbar__dropdown">
-              <select className="navbar__select" defaultValue="sentinel2">
-                <option value="sentinel2">Sentinel-2</option>
-              </select>
-              <div className="navbar__select-arrow">▼</div>
-            </div>
+            <NavbarDropdown 
+                value="sentinel2"
+                onChange={() => {}}
+                options={[{ value: "sentinel2", label: "Sentinel-2" }]}
+            />
             
             <div className="navbar__select-divider"></div>
 
-            <div className="navbar__dropdown">
-              <select 
-                className="navbar__select" 
-                value={activeBand} 
-                onChange={(e) => setActiveBand(e.target.value)}
-              >
-                <option value="ndvi">NDVI</option>
-                <option value="evi">EVI</option>
-                <option value="savi">SAVI</option>
-                <option value="ndmi">NDMI</option>
-                <option value="gndvi">GNDVI</option>
-                <option value="cvi">CVI</option>
-              </select>
-              <div className="navbar__select-arrow">▼</div>
-            </div>
+            <NavbarDropdown 
+                value={activeBand}
+                onChange={(val) => setActiveBand(val)}
+                options={[
+                    { value: "ndvi", label: "NDVI" },
+                    { value: "evi", label: "EVI" },
+                    { value: "savi", label: "SAVI" },
+                    { value: "ndmi", label: "NDMI" },
+                    { value: "gndvi", label: "GNDVI" },
+                    { value: "cvi", label: "CVI" }
+                ]}
+            />
           </div>
 
           <div className={`navbar__status ${isLoading ? 'is-loading' : analysisData ? 'is-success' : 'is-idle'}`}>
